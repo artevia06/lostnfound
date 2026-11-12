@@ -1,1 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Papan Lost &amp; Found Sekolah</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+  <div class="corkboard">
+    <div class="pinned-title">
+      <h1>Papan Lost &amp; Found</h1>
+      <p>Tempel laporan barang hilang atau ditemukan di sini — langsung tersimpan, tidak perlu instalasi apa pun.</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-view="board">Papan Pengumuman</button>
+    <button class="tab-btn" data-view="report">+ Lapor Barang</button>
+    <button class="tab-btn" data-view="admin">Admin</button>
+  </div>
+
+  <main>
+
+    <!-- ===== VIEW: BOARD ===== -->
+    <section id="view-board" class="view active">
+      <p class="shared-note">Laporan tersimpan di perangkat ini. Pastikan terhubung ke jaringan sekolah atau server utama agar laporan dapat dilihat oleh pengguna lain.</p>
+
+      <div class="search-bar">
+        <input type="text" id="searchKeyword" placeholder="Cari nama barang / lokasi...">
+        <select id="filterStatus">
+          <option value="">Semua Status</option>
+          <option value="hilang">Hilang</option>
+          <option value="ditemukan">Ditemukan</option>
+        </select>
+        <select id="filterCategory">
+          <option value="">Semua Kategori</option>
+          <option value="Elektronik">Elektronik</option>
+          <option value="Buku & Alat Tulis">Buku &amp; Alat Tulis</option>
+          <option value="Pakaian">Pakaian</option>
+          <option value="Aksesoris">Aksesoris</option>
+          <option value="Dompet & Kartu">Dompet &amp; Kartu</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+
+      <div id="boardGrid" class="board-grid">
+        <p class="loading">Memuat papan...</p>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: REPORT ===== -->
+    <section id="view-report" class="view">
+      <div class="index-card">
+        <h2>Buat Laporan Baru</h2>
+        <form id="reportForm">
+
+          <div class="status-toggle">
+            <label class="opt-lost">
+              <input type="radio" name="status" value="hilang" required> Barang Hilang
+            </label>
+            <label class="opt-found">
+              <input type="radio" name="status" value="ditemukan"> Barang Ditemukan
+            </label>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="item_name">Nama Barang</label>
+              <input type="text" id="item_name" placeholder="Contoh: Botol minum biru" required>
+            </div>
+            <div class="field">
+              <label for="category">Kategori</label>
+              <select id="category" required>
+                <option value="">-- Pilih --</option>
+                <option value="Alat Tulis">Buku &amp; Alat Tulis</option>
+                <option value="Aksesoris">Aksesoris</option>
+                <option value="Barang Pribadi">Barang Pribadi</option>
+                <option value="Elektronik">Elektronik</option>
+                <option value="Pakaian">Pakaian</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="location">Lokasi</label>
+              <input type="text" id="location" placeholder="Contoh: Kantin, Lab Komputer" required>
+            </div>
+            <div class="field">
+              <label for="event_date">Tanggal Kejadian</label>
+              <input type="date" id="event_date" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="description">Deskripsi Tambahan</label>
+            <textarea id="description" rows="3" placeholder="Ciri-ciri barang, kondisi, dsb."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="image">Foto Barang</label>
+            <input type="file" id="image" accept="image/*">
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="reporter_name">Nama Pelapor</label>
+              <input type="text" id="reporter_name" placeholder="Nama lengkap" required>
+            </div>
+            <div class="field">
+              <label for="reporter_contact">(Kelas)</label>
+              <input type="text" id="reporter_contact" placeholder="Kelas" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn">Tempel di Papan</button>
+          <p id="formMsg" class="form-msg"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: ADMIN ===== -->
+    <section id="view-admin" class="view">
+      <div id="adminLoginBox" class="index-card admin-login">
+        <h2>Login Admin</h2>
+        <form id="loginForm">
+          <div class="field">
+            <label for="adminPass">Password Admin</label>
+            <input type="password" id="adminPass" required>
+          </div>
+          <button type="submit" class="btn">Masuk</button>
+          <p id="loginMsg" class="form-msg"></p>
+        </form>
+        <p style="font-size:0.78rem; color:var(--muted); margin-top:14px;"> 
+        </p>
+      </div>
+
+      <div id="adminDashboard" style="display:none;">
+        <div class="index-card" style="margin-bottom:22px;">
+          <h2 style="margin-bottom:6px;">Dashboard Admin</h2>
+          <p style="color:var(--muted); font-size:0.88rem;">Tandai laporan selesai atau hapus data yang sudah tidak relevan.</p>
+        </div>
+        <div id="adminGrid" class="board-grid"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>Papan Lost &amp; Found Sekolah &mdash; data tersimpan otomatis dan bersama untuk semua pengunjung.</footer>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'lostfound-items';
+  let items = [];
+  let isAdmin = false;
+
+  // ---------- TAB NAVIGATION ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    });
+  });
+
+  // ---------- STORAGE HELPERS ----------
+  async function loadItems() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      items = raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      console.error('Gagal memuat data:', err);
+      items = [];
+    }
+  }
+
+  async function saveItems() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      return true;
+    } catch (err) {
+      console.error('Gagal menyimpan:', err);
+      return false;
+    }
+  }
+
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function formatDate(str) {
+    if (!str) return '-';
+    const d = new Date(str);
+    if (isNaN(d)) return str;
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // ---------- RENDER BOARD (publik) ----------
+  function renderBoard() {
+    const grid = document.getElementById('boardGrid');
+    const keyword = document.getElementById('searchKeyword').value.trim().toLowerCase();
+    const status = document.getElementById('filterStatus').value;
+    const category = document.getElementById('filterCategory').value;
+
+    let filtered = items.filter(it => {
+      if (status && it.status !== status) return false;
+      if (category && it.category !== category) return false;
+      if (keyword) {
+        const hay = (it.item_name + ' ' + it.location + ' ' + (it.description || '')).toLowerCase();
+        if (!hay.includes(keyword)) return false;
+      }
+      return true;
+    }).sort((a, b) => b.created_at - a.created_at);
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '<p class="empty">Belum ada laporan yang cocok.</p>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(noteHTML).join('');
+  }
+
+  function noteHTML(it) {
+    const statusLabel = it.is_resolved ? '<span class="badge selesai">Selesai</span>'
+      : `<span class="badge ${it.status}">${it.status === 'hilang' ? 'Hilang' : 'Ditemukan'}</span>`;
+
+    return `
+      <div class="note status-${it.status}">
+        ${it.image ? `<img src="${it.image}" alt="${escapeHTML(it.item_name)}">` : ''}
+        ${statusLabel}
+        <h3>${escapeHTML(it.item_name)}</h3>
+        <div class="meta">${escapeHTML(it.location)} &middot; ${escapeHTML(it.category)}</div>
+        <div class="meta">${formatDate(it.event_date)}</div>
+        <div class="desc">${escapeHTML(it.description || 'Tidak ada deskripsi tambahan.')}</div>
+        <div class="contact">Pelapor: ${escapeHTML(it.reporter_name)} &middot; ${escapeHTML(it.reporter_contact)}</div>
+      </div>
+    `;
+  }
+
+  // ---------- REPORT FORM ----------
+  function resizeImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 480;
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('reportForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('formMsg');
+    const btn = e.target.querySelector('button[type="submit"]');
+    msg.textContent = '';
+    msg.className = 'form-msg';
+
+    const statusEl = document.querySelector('input[name="status"]:checked');
+    if (!statusEl) {
+      msg.textContent = 'Pilih status: Hilang atau Ditemukan.';
+      msg.classList.add('err');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Menempel...';
+
+    let imageData = null;
+    const fileInput = document.getElementById('image');
+    if (fileInput.files && fileInput.files[0]) {
+      try {
+        imageData = await resizeImage(fileInput.files[0]);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    const newItem = {
+      id: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      status: statusEl.value,
+      item_name: document.getElementById('item_name').value.trim(),
+      category: document.getElementById('category').value,
+      location: document.getElementById('location').value.trim(),
+      event_date: document.getElementById('event_date').value,
+      description: document.getElementById('description').value.trim(),
+      reporter_name: document.getElementById('reporter_name').value.trim(),
+      reporter_contact: document.getElementById('reporter_contact').value.trim(),
+      image: imageData,
+      is_resolved: false,
+      created_at: Date.now()
+    };
+
+    items.push(newItem);
+    const ok = await saveItems();
+
+    if (ok) {
+      msg.textContent = '✅ Laporan berhasil ditempel di papan!';
+      msg.classList.add('ok');
+      e.target.reset();
+      renderBoard();
+    } else {
+      items.pop();
+      msg.textContent = '❌ Gagal menyimpan laporan. Coba lagi.';
+      msg.classList.add('err');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Tempel di Papan';
+  });
+
+  document.getElementById('searchKeyword').addEventListener('input', renderBoard);
+  document.getElementById('filterStatus').addEventListener('change', renderBoard);
+  document.getElementById('filterCategory').addEventListener('change', renderBoard);
+
+  // ---------- ADMIN ----------
+  const ADMIN_PASSWORD = 'admin10141528';
+
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pass = document.getElementById('adminPass').value;
+    const msg = document.getElementById('loginMsg');
+
+    if (pass === ADMIN_PASSWORD) {
+      isAdmin = true;
+      document.getElementById('adminLoginBox').style.display = 'none';
+      document.getElementById('adminDashboard').style.display = 'block';
+      renderAdminGrid();
+    } else {
+      msg.textContent = '❌ Password salah.';
+      msg.className = 'form-msg err';
+    }
+  });
+
+  function renderAdminGrid() {
+    const grid = document.getElementById('adminGrid');
+    if (items.length === 0) {
+      grid.innerHTML = '<p class="empty">Belum ada data.</p>';
+      return;
+    }
+
+    const sorted = [...items].sort((a, b) => b.created_at - a.created_at);
+
+    grid.innerHTML = sorted.map(it => `
+      <div class="note status-${it.status}">
+        ${it.image ? `<img src="${it.image}" alt="${escapeHTML(it.item_name)}">` : ''}
+        ${it.is_resolved ? '<span class="badge selesai">Selesai</span>' : `<span class="badge ${it.status}">${it.status === 'hilang' ? 'Hilang' : 'Ditemukan'}</span>`}
+        <h3>${escapeHTML(it.item_name)}</h3>
+        <div class="meta">${escapeHTML(it.location)} &middot; ${escapeHTML(it.category)}</div>
+        <div class="contact">Pelapor: ${escapeHTML(it.reporter_name)} (${escapeHTML(it.reporter_contact)})</div>
+        <div class="actions">
+          <button class="btn-outline" data-action="resolve" data-id="${it.id}">${it.is_resolved ? 'Batal Selesai' : 'Tandai Selesai'}</button>
+          <button class="btn-danger" data-action="delete" data-id="${it.id}">Hapus</button>
+        </div>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('[data-action="resolve"]').forEach(btn => {
+      btn.addEventListener('click', () => toggleResolved(btn.dataset.id));
+    });
+    grid.querySelectorAll('[data-action="delete"]').forEach(btn => {
+      btn.addEventListener('click', () => deleteItem(btn.dataset.id));
+    });
+  }
+
+  async function toggleResolved(id) {
+    const idx = items.findIndex(it => it.id === id);
+    if (idx === -1) return;
+    items[idx].is_resolved = !items[idx].is_resolved;
+    const ok = await saveItems();
+    if (!ok) items[idx].is_resolved = !items[idx].is_resolved;
+    renderAdminGrid();
+    renderBoard();
+  }
+
+  async function deleteItem(id) {
+    if (!confirm('Yakin ingin menghapus laporan ini?')) return;
+    const backup = [...items];
+    items = items.filter(it => it.id !== id);
+    const ok = await saveItems();
+    if (!ok) items = backup;
+    renderAdminGrid();
+    renderBoard();
+  }
+
+  // ---------- INIT ----------
+  (async function init() {
+    await loadItems();
+    renderBoard();
+  })();
+})();
+</script>
+
+</body>
+</html>
